@@ -35,7 +35,7 @@ describe('Seu teste', () => {
   // it('...', async () => {
   //   chaiHttpResponse = await chai
   //      .request(app)
-  //      ...
+  //      ... 
 
   //   expect(...)
   // });
@@ -48,4 +48,26 @@ describe('Seu teste', () => {
     expect(chaiHttpResponse).to.have.status(200);
     expect(chaiHttpResponse.body).to.be.eql({ ok: true });
   });
+  it('Testa se get /teams retorna 200', async () => {
+    sinon.stub(SequelizeTeam, 'findAll').resolves(teams as any);
+
+    const {status, body} = await chai
+      .request(app)
+      .get('/teams');
+
+      expect(status).to.be.equal(200);
+      expect(body).to.deep.equal(teams);
+  });
+
+  it('Testa se get /teams/:id retorna 200', async () => {
+    sinon.stub(SequelizeTeam, 'findByPk').resolves(teams[0] as any);
+
+    const {status, body} = await chai
+      .request(app)
+      .get('/teams/1');
+
+      expect(status).to.be.equal(200);
+      expect(body).to.deep.equal(teams[0]);
+  });
+
 });

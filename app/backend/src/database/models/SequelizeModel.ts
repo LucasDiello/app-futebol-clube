@@ -27,8 +27,9 @@ SequelizeTeams.init({
   },
 }, {
   sequelize: db,
-  modelName: 'trybeEval',
+  modelName: 'teams',
   timestamps: false,
+  underscored: true,
 });
 
 /**
