@@ -4,9 +4,10 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 
 import { app } from '../app';
-import Example from '../database/models/Team.Model';
+import SequelizeTeam from '../database/models/SequelizeModel';
 
 import { Response } from 'superagent';
+import { teams } from './mocks/Teams.mock';
 
 chai.use(chaiHttp);
 
@@ -39,7 +40,12 @@ describe('Seu teste', () => {
   //   expect(...)
   // });
 
-  it('Seu sub-teste', () => {
-    expect(false).to.be.eq(true);
+  it('Testa se a rota / está funcionando', async () => {
+    const chaiHttpResponse = await chai
+      .request(app)
+      .get('/');
+
+    expect(chaiHttpResponse).to.have.status(200);
+    expect(chaiHttpResponse.body).to.be.eql({ ok: true });
   });
 });
