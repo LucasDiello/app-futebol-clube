@@ -10,6 +10,7 @@ export default function mapStatusHTTP(status: string): number {
     notFound: 404,
     unprocessableEntity: 422,
     conflict: 409,
+    unauthorized: 401,
   };
 
   return statusMap[status];

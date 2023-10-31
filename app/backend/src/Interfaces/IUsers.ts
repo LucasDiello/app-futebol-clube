@@ -1,7 +1,20 @@
-export default interface IUsers {
+import { ServiceMessage, ServiceResponse } from './ServiceResponse';
+
+export interface IUsers {
   id: number;
   username: string;
   role: string;
   email: string;
   password: string;
+}
+
+export interface IUserLogin {
+  email: string;
+  password: string;
+}
+
+export type Token = { token : string };
+
+export interface IUsersModel {
+  login(user: IUserLogin): Promise<ServiceResponse<Token | ServiceMessage>>;
 }

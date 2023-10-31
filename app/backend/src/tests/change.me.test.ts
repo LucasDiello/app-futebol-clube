@@ -8,6 +8,10 @@ import SequelizeTeam from '../database/models/SequelizeModel';
 
 import { Response } from 'superagent';
 import { teams } from './mocks/Teams.mock';
+import SequelizeUsers from '../database/models/SequelizeUsers';
+import { buildLoginUser, existingUserWithWrongPasswordBody, loginUser
+  , notHaveEmail, notHavePassword } from './mocks/Login.mock';
+
 
 chai.use(chaiHttp);
 
@@ -81,8 +85,45 @@ describe('Seu teste', () => {
       expect(body).to.deep.equal({message: 'Team not found'});
   });
 
+  it('Testa se post /login retorna 200', async () => {
+  
+
+    const mockFindOne = SequelizeUsers.build(buildLoginUser);
+    sinon.stub(SequelizeUsers, 'findOne').resolves(mockFindOne);
+
+    const {status, body} = await chai.request(app).post('/login').send(loginUser);
+    
+    expect(status).to.be.equal(200);
+    expect(body).to.have.property('token');
+  });
+
   afterEach(() => {
     sinon.restore();
   })
+
+  it('Testa se post /login retorna 401 ao não receber 1 email', async () => {
+    const {status, body} = await chai.request(app).post('/login').send(notHaveEmail);
+    
+    expect(status).to.be.equal(400);
+    expect(body).to.have.property('message');
+  });
+
+  it('Testa se post /login retorna 401 ao não receber 1 senha', async () => {
+    const {status, body} = await chai.request(app).post('/login').send(notHavePassword);
+
+    expect(status).to.be.equal(400);
+    expect(body).to.have.property('message');
+  });
+
+  it('Testa ao receber 1 email existente e uma senha inválida', async () => {
+    const mockFindOne = SequelizeUsers.build(buildLoginUser);
+    sinon.stub(SequelizeUsers, 'findOne').resolves(mockFindOne);
+
+    const {status, body} = await chai.request(app).post('/login').send(existingUserWithWrongPasswordBody);
+
+    expect(status).to.be.equal(401);
+    expect(body).to.have.property('message');
+  });
+
 
 });
