@@ -25,20 +25,16 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    return res.status(401).json({ message: 'Token é obrigatório' });
+    return res.status(401).json({ message: 'Token not found' });
   }
 
   const token = authorization.split(' ')[1];
 
-  try {
-    const { username } = await decodedToken(token);
-    const user = await UserModel.findOne({ where: { username } });
-    if (!user) return res.status(401).json({ message: 'Token inválido' });
+  const { username } = await decodedToken(token);
+  const user = await UserModel.findOne({ where: { username } });
+  if (!user) return res.status(401).json({ message: 'Token must be a valid token' });
 
-    next();
-  } catch (e) {
-    return res.status(401).json({ message: 'Token inválido' });
-  }
+  next();
 }
 
 export {
