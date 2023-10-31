@@ -69,5 +69,20 @@ describe('Seu teste', () => {
       expect(status).to.be.equal(200);
       expect(body).to.deep.equal(teams[0]);
   });
+  
+  it('Testa se get /teams/:id retorna 404', async () => {
+    sinon.stub(SequelizeTeam, 'findByPk').resolves(null);
+
+    const {status, body} = await chai
+      .request(app)
+      .get('/teams/1');
+
+      expect(status).to.be.equal(404);
+      expect(body).to.deep.equal({message: 'Team not found'});
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  })
 
 });

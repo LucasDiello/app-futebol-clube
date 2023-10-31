@@ -12,4 +12,15 @@ export default class TeamModel implements ITeamsModel {
       teamName,
     }));
   }
+
+  async findByPk(id: ITeams['id']) : Promise<ITeams | null> {
+    const team = await this.model.findByPk(id);
+    if (team === null) return null;
+    const { teamName } = team;
+
+    return {
+      id,
+      teamName,
+    };
+  }
 }
