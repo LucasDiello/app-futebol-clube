@@ -7,8 +7,17 @@ export default class MatchesService {
     private matchesModel = new MatchesModel(),
   ) {}
 
-  async findAll() : Promise<ServiceResponse<IMatches[]>> {
+  async findAll(inProgress: string | undefined) : Promise<ServiceResponse<IMatches[]>> {
     const matches = await this.matchesModel.findAll();
-    return { status: 'successful', data: matches };
+
+    switch (inProgress) {
+      case 'true':
+        return { status: 'successful', data: matches.filter((match) => match.inProgress === true) };
+      case 'false':
+        return { status: 'successful',
+          data: matches.filter((match) => match.inProgress === false) };
+      default:
+        return { status: 'successful', data: matches };
+    }
   }
 }
