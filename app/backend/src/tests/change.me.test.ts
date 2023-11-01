@@ -12,6 +12,8 @@ import SequelizeUsers from '../database/models/SequelizeUsers';
 import { buildLoginUser, existingUserWithWrongPasswordBody, loginUser
   , notHaveEmail, notHavePassword } from './mocks/Login.mock';
 import { generateToken } from '../middleware/auth/jwtValidate';
+import SequelizeMatches from '../database/models/SequelizeMatches';
+import { matche, matches} from './mocks/Matches.mock';
 
 
 chai.use(chaiHttp);
@@ -140,9 +142,16 @@ describe('Seu teste', () => {
 
     expect(result.status).to.be.equal(200);
     expect(result.body).to.deep.equal( { role : "admin"});
+  });
 
+  it('Testa se get /matches retorna 200', async () => {
+    sinon.stub(SequelizeMatches, 'findAll').resolves(matches as any);
 
+    const result = await chai.request(app)
+      .get('/matches')
 
+    expect(result.status).to.be.equal(200);
+    expect(result.body).to.deep.equal(matches);
   });
 
 });
