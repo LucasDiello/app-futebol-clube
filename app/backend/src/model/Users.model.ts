@@ -1,13 +1,13 @@
 import { compareSync } from 'bcryptjs';
 import { generateToken } from '../middleware/auth/jwtValidate';
-import { ServiceMessage, ServiceResponse } from '../Interfaces/ServiceResponse';
+import { ServiceResponse } from '../Interfaces/ServiceResponse';
 import SequelizeUsers from '../database/models/SequelizeUsers';
-import { IUsersModel, IUserLogin, Token } from '../Interfaces/IUsers';
+import { IUsersModel, IUserLogin, Token, Role } from '../Interfaces/IUsers';
 
 export default class UsersModel implements IUsersModel {
   private model = SequelizeUsers;
 
-  async login({ email, password }: IUserLogin) : Promise<ServiceResponse<Token | ServiceMessage>> {
+  async login({ email, password }: IUserLogin) : Promise<ServiceResponse<Token>> {
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
     if (!email || !password) {
@@ -23,9 +23,18 @@ export default class UsersModel implements IUsersModel {
     }
 
     const { id, username } = foundUser.dataValues;
-
     const token = generateToken({ id, username });
 
     return { status: 'successful', data: { token } };
+  }
+
+  async loginRole(id: number): Promise<ServiceResponse<Role>> {
+    const foundUser = await this.model.findOne({ where: { id } });
+
+    if (!foundUser) {
+      return { status: 'notFound', data: { message: 'User not found' } };
+    }
+    const { role } = foundUser.dataValues;
+    return { status: 'successful', data: { role } };
   }
 }

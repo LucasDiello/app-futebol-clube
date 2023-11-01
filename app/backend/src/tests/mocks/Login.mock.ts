@@ -25,7 +25,11 @@ const buildLoginUser = {
     password: bcrypt.hashSync('secret_user', 8),
 };
 
+const roleUser = {
+    role: 'user'
+}
+
 const existingUserWithWrongPasswordBody = { email: validEmail, password: 'wrong_password' };
 
 
-export { loginUser, buildLoginUser, notHaveEmail, notHavePassword, existingUserWithWrongPasswordBody };
+export { loginUser, buildLoginUser, notHaveEmail, notHavePassword, existingUserWithWrongPasswordBody , roleUser};

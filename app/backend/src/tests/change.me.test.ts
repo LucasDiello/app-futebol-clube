@@ -11,6 +11,7 @@ import { teams } from './mocks/Teams.mock';
 import SequelizeUsers from '../database/models/SequelizeUsers';
 import { buildLoginUser, existingUserWithWrongPasswordBody, loginUser
   , notHaveEmail, notHavePassword } from './mocks/Login.mock';
+import { generateToken } from '../middleware/auth/jwtValidate';
 
 
 chai.use(chaiHttp);
@@ -18,31 +19,6 @@ chai.use(chaiHttp);
 const { expect } = chai;
 
 describe('Seu teste', () => {
-  /**
-   * Exemplo do uso de stubs com tipos
-   */
-
-  // let chaiHttpResponse: Response;
-
-  // before(async () => {
-  //   sinon
-  //     .stub(Example, "findOne")
-  //     .resolves({
-  //       ...<Seu mock>
-  //     } as Example);
-  // });
-
-  // after(()=>{
-  //   (Example.findOne as sinon.SinonStub).restore();
-  // })
-
-  // it('...', async () => {
-  //   chaiHttpResponse = await chai
-  //      .request(app)
-  //      ... 
-
-  //   expect(...)
-  // });
 
   it('Testa se a rota / está funcionando', async () => {
     const chaiHttpResponse = await chai
@@ -125,5 +101,48 @@ describe('Seu teste', () => {
     expect(body).to.have.property('message');
   });
 
+  it('Testa se get /login/role retorna 401 caso não tenha nenhum token', async () => {
+
+    const mock = SequelizeUsers.build(buildLoginUser)
+    sinon.stub(SequelizeUsers, 'findByPk').resolves(mock);
+
+    const result = await chai.request(app)
+      .get('/login/role')
+     
+      
+    expect(result.status).to.be.equal(401);
+    expect(result.body).to.deep.equal( { message : "Token not found"});
+  });
+
+  it('Testa se get /login/role retorna 401 caso o token seja inválido', async () => {
+      
+      const mock = SequelizeUsers.build(buildLoginUser)
+      sinon.stub(SequelizeUsers, 'findByPk').resolves(mock);
+  
+      const result = await chai.request(app)
+        .get('/login/role')
+        .set('Authorization', 'Bearer 123')
+        
+      expect(result.status).to.be.equal(401);
+      expect(result.body).to.deep.equal( { message : "Token must be a valid token"});
+  });
+
+  it('Testa se get /login/role retorna 200 caso o token seja válido', async () => {
+
+    const token = generateToken({ id: 1, username: 'User' });
+
+    const mock = SequelizeUsers.build(buildLoginUser)
+    sinon.stub(SequelizeUsers, 'findByPk').resolves(mock);
+    
+    const result = await chai.request(app)
+      .get('/login/role')
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(result.status).to.be.equal(200);
+    expect(result.body).to.deep.equal( { role : "admin"});
+
+
+
+  });
 
 });

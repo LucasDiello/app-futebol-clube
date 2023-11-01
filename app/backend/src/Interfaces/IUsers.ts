@@ -1,4 +1,4 @@
-import { ServiceMessage, ServiceResponse } from './ServiceResponse';
+import { ServiceResponse } from './ServiceResponse';
 
 export interface IUsers {
   id: number;
@@ -13,8 +13,10 @@ export interface IUserLogin {
   password: string;
 }
 
+export type Role = { role : string };
 export type Token = { token : string };
 
 export interface IUsersModel {
-  login(user: IUserLogin): Promise<ServiceResponse<Token | ServiceMessage>>;
+  login(user: IUserLogin): Promise<ServiceResponse<Token>>;
+  loginRole(id : number) : Promise<ServiceResponse<Role>>;
 }

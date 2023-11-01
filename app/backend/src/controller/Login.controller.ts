@@ -11,4 +11,11 @@ export default class LoginController {
     const { status, data } = await this.loginModel.login(req.body);
     res.status(mapStatusHTTP(status)).json(data);
   }
+
+  async loginRole(req: Request & { userId? : number }, res: Response) {
+    const id = Number(req.userId);
+
+    const { status, data } = await this.loginModel.loginRole(id);
+    res.status(mapStatusHTTP(status)).json(data);
+  }
 }

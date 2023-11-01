@@ -21,7 +21,11 @@ function decodedToken(token: string): TokenPayload {
   return data;
 }
 
-async function authMiddleware(req: Request, res: Response, next: NextFunction) {
+async function authMiddleware(
+  req: Request & { userId?: number },
+  res: Response,
+  next: NextFunction,
+) {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -30,11 +34,16 @@ async function authMiddleware(req: Request, res: Response, next: NextFunction) {
 
   const token = authorization.split(' ')[1];
 
-  const { username } = await decodedToken(token);
-  const user = await UserModel.findOne({ where: { username } });
-  if (!user) return res.status(401).json({ message: 'Token must be a valid token' });
+  try {
+    const { username, id } = await decodedToken(token);
+    const user = await UserModel.findOne({ where: { username } });
+    if (!user) return res.status(401).json({ message: 'Token must be a valid token' });
+    req.userId = id;
 
-  next();
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Token must be a valid token' });
+  }
 }
 
 export {
