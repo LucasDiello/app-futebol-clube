@@ -13,7 +13,7 @@ import { buildLoginUser, existingUserWithWrongPasswordBody, loginUser
   , notHaveEmail, notHavePassword } from './mocks/Login.mock';
 import { generateToken } from '../middleware/auth/jwtValidate';
 import SequelizeMatches from '../database/models/SequelizeMatches';
-import { matche, matches} from './mocks/Matches.mock';
+import { matche, matcheCreated, matcheFinished, matches} from './mocks/Matches.mock';
 
 
 chai.use(chaiHttp);
@@ -152,6 +152,63 @@ describe('Seu teste', () => {
 
     expect(result.status).to.be.equal(200);
     expect(result.body).to.deep.equal(matches);
+  });
+
+  it('Testa se get /matches?inProgress=true retorna 200', async () => {
+    const mockFindOne = SequelizeMatches.build(matches as any);
+    sinon.stub(SequelizeMatches, 'findAll').resolves(mockFindOne as any);
+
+    const result = await chai.request(app)
+      .get('/matches?inProgress=true')
+
+    expect(result.status).to.be.equal(200);
+    expect(result.body).to.deep.equal([matche]);
+  });
+
+  it('Testa se get /matches?inProgress=false retorna 200', async () => {
+    const mockFindOne = SequelizeMatches.build(matches as any);
+    sinon.stub(SequelizeMatches, 'findAll').resolves(mockFindOne as any);
+
+    const result = await chai.request(app)
+      .get('/matches?inProgress=false')
+
+    expect(result.status).to.be.equal(200);
+    expect(result.body).to.deep.equal([matcheFinished]);
+  });
+
+
+  it('Testa se patch /matches/:id/finish retorna 200', async () => {
+    sinon.stub(SequelizeMatches, 'update').resolves([1] as any);
+
+    const result = await chai.request(app)
+      .patch('/matches/1/finish')
+
+    expect(result.status).to.be.equal(200);
+    expect(result.body).to.deep.equal({ message: 'Finished' });
+  });
+
+  it('Testa se patch /matches/:id retorna 200', async () => {
+    sinon.stub(SequelizeMatches, 'update').resolves([1] as any);
+
+    const result = await chai.request(app)
+      .patch('/matches/1')
+      .send(matche)
+
+    expect(result.status).to.be.equal(200);
+    expect(result.body).to.deep.equal({ message: 'Updated' });
+  });
+
+  it('Testa se post /matches retorna 200', async () => {
+
+    const mockFindOne = SequelizeUsers.build(matche as any);
+    sinon.stub(SequelizeMatches, 'findOne').resolves(mockFindOne);
+
+    const result = await chai.request(app)
+      .post('/matches')
+      .send(matcheCreated)
+
+    expect(result.status).to.be.equal(200);
+    expect(result.body).to.deep.equal(matcheCreated);
   });
 
 });
