@@ -22,8 +22,8 @@ export default class MatchesController {
   }
 
   async updatedMatch(req: Request, res: Response) {
-    const { id } = req.params as any;
-    const { homeTeamGoals, awayTeamGoals } = req.body as any;
+    const { id } = req.params as never;
+    const { homeTeamGoals, awayTeamGoals } = req.body;
 
     const { status, data } = await this.matchesService.updatedMatch(
       Number(id),
