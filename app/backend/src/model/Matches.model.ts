@@ -13,12 +13,12 @@ export default class MatchesModel implements IMatchesModel {
       include: [
         {
           model: SequelizeTeams,
-          as: 'home_team',
+          as: 'homeTeam',
           attributes: ['teamName'],
         },
         {
           model: SequelizeTeams,
-          as: 'away_team',
+          as: 'awayTeam',
           attributes: ['teamName'],
         },
       ],
