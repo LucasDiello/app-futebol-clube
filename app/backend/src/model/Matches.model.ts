@@ -48,12 +48,6 @@ export default class MatchesModel implements IMatchesModel {
       awayTeamGoals: match.awayTeamGoals,
       inProgress: true,
     });
-    const { homeTeamId, homeTeamGoals, awayTeamId, awayTeamGoals } = newMatch.dataValues;
-    return {
-      homeTeamId,
-      homeTeamGoals,
-      awayTeamId,
-      awayTeamGoals,
-    };
+    return newMatch.dataValues;
   }
 }
