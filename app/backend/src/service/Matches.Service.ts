@@ -52,6 +52,6 @@ export default class MatchesService {
     }
 
     const newMatch = await this.matchesModel.createMatch(match);
-    return { status: 'successful', data: newMatch };
+    return { status: 'created', data: newMatch };
   }
 }
