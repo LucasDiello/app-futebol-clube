@@ -11,14 +11,15 @@ import { teams } from './mocks/Teams.mock';
 import SequelizeUsers from '../database/models/SequelizeUsers';
 import { buildLoginUser, existingUserWithWrongPasswordBody, loginUser
   , notHaveEmail, notHavePassword } from './mocks/Login.mock';
-import { generateToken } from '../middleware/auth/jwtValidate';
-import SequelizeMatches from '../database/models/SequelizeMatches';
-import { matche, matcheCreated, matcheFinished, matches} from './mocks/Matches.mock';
+  import { generateToken } from '../middleware/auth/jwtValidate';
+  import SequelizeMatches from '../database/models/SequelizeMatches';
+  import { matche, matcheCreated, matcheFinished, matches} from './mocks/Matches.mock';
+  
 
-
-chai.use(chaiHttp);
-
-const { expect } = chai;
+  chai.use(chaiHttp);
+  
+  const { expect } = chai;
+  const token = generateToken({ id: 1, username: 'User' });
 
 describe('Seu teste', () => {
 
@@ -131,7 +132,6 @@ describe('Seu teste', () => {
 
   it('Testa se get /login/role retorna 200 caso o token seja válido', async () => {
 
-    const token = generateToken({ id: 1, username: 'User' });
 
     const mock = SequelizeUsers.build(buildLoginUser)
     sinon.stub(SequelizeUsers, 'findByPk').resolves(mock);
@@ -181,7 +181,7 @@ describe('Seu teste', () => {
     sinon.stub(SequelizeMatches, 'update').resolves([1] as any);
 
     const result = await chai.request(app)
-      .patch('/matches/1/finish')
+      .patch('/matches/1/finish').set('Authorization', `Bearer ${token}`)
 
     expect(result.status).to.be.equal(200);
     expect(result.body).to.deep.equal({ message: 'Finished' });
@@ -192,7 +192,7 @@ describe('Seu teste', () => {
 
     const result = await chai.request(app)
       .patch('/matches/1')
-      .send(matche)
+      .send(matche).set('Authorization', `Bearer ${token}`)
 
     expect(result.status).to.be.equal(200);
     expect(result.body).to.deep.equal({ message: 'Updated' });
@@ -205,7 +205,7 @@ describe('Seu teste', () => {
 
     const result = await chai.request(app)
       .post('/matches')
-      .send(matcheCreated)
+      .send(matcheCreated).set('Authorization', `Bearer ${token}`)
 
     expect(result.status).to.be.equal(200);
     expect(result.body).to.deep.equal(matcheCreated);

@@ -20,7 +20,6 @@ router.patch(
 router.post(
   '/',
   authMiddleware,
-
   (req: Request, res: Response) => matchesController.createMatch(req, res),
 );
 
