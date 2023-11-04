@@ -13,7 +13,7 @@ import { buildLoginUser, existingUserWithWrongPasswordBody, loginUser
   , notHaveEmail, notHavePassword } from './mocks/Login.mock';
   import { generateToken } from '../middleware/auth/jwtValidate';
   import SequelizeMatches from '../database/models/SequelizeMatches';
-  import { matche, matcheCreated, matcheFinished, matches} from './mocks/Matches.mock';
+  import { errorEqualTeam, matche, matcheCreated, matcheFinished, matches, notFoundTeam} from './mocks/Matches.mock';
   
 
   chai.use(chaiHttp);
@@ -76,36 +76,33 @@ describe('Seu teste', () => {
     expect(body).to.have.property('token');
   });
 
-  afterEach(() => {
-    sinon.restore();
-  })
-
+  
   it('Testa se post /login retorna 401 ao não receber 1 email', async () => {
     const {status, body} = await chai.request(app).post('/login').send(notHaveEmail);
     
     expect(status).to.be.equal(400);
     expect(body).to.have.property('message');
   });
-
+  
   it('Testa se post /login retorna 401 ao não receber 1 senha', async () => {
     const {status, body} = await chai.request(app).post('/login').send(notHavePassword);
-
+    
     expect(status).to.be.equal(400);
     expect(body).to.have.property('message');
   });
-
+  
   it('Testa ao receber 1 email existente e uma senha inválida', async () => {
     const mockFindOne = SequelizeUsers.build(buildLoginUser);
     sinon.stub(SequelizeUsers, 'findOne').resolves(mockFindOne);
-
+    
     const {status, body} = await chai.request(app).post('/login').send(existingUserWithWrongPasswordBody);
-
+    
     expect(status).to.be.equal(401);
     expect(body).to.have.property('message');
   });
-
+  
   it('Testa se get /login/role retorna 401 caso não tenha nenhum token', async () => {
-
+    
     const mock = SequelizeUsers.build(buildLoginUser)
     sinon.stub(SequelizeUsers, 'findByPk').resolves(mock);
 
@@ -121,94 +118,118 @@ describe('Seu teste', () => {
       
       const mock = SequelizeUsers.build(buildLoginUser)
       sinon.stub(SequelizeUsers, 'findByPk').resolves(mock);
-  
+      
       const result = await chai.request(app)
-        .get('/login/role')
-        .set('Authorization', 'Bearer 123')
-        
+      .get('/login/role')
+      .set('Authorization', 'Bearer 123')
+      
       expect(result.status).to.be.equal(401);
       expect(result.body).to.deep.equal( { message : "Token must be a valid token"});
-  });
-
-  it('Testa se get /login/role retorna 200 caso o token seja válido', async () => {
-
-
-    const mock = SequelizeUsers.build(buildLoginUser)
-    sinon.stub(SequelizeUsers, 'findByPk').resolves(mock);
+    });
     
-    const result = await chai.request(app)
+    it('Testa se get /login/role retorna 200 caso o token seja válido', async () => {
+      
+      
+      const mock = SequelizeUsers.build(buildLoginUser)
+      sinon.stub(SequelizeUsers, 'findByPk').resolves(mock);
+      
+      const result = await chai.request(app)
       .get('/login/role')
       .set('Authorization', `Bearer ${token}`)
-
-    expect(result.status).to.be.equal(200);
-    expect(result.body).to.deep.equal( { role : "admin"});
-  });
-
-  it('Testa se get /matches retorna 200', async () => {
-    sinon.stub(SequelizeMatches, 'findAll').resolves(matches as any);
-
-    const result = await chai.request(app)
+      
+      expect(result.status).to.be.equal(200);
+      expect(result.body).to.deep.equal( { role : "admin"});
+    });
+    
+    it('Testa se get /matches retorna 200', async () => {
+      sinon.stub(SequelizeMatches, 'findAll').resolves(matches as any);
+      
+      const result = await chai.request(app)
       .get('/matches')
-
-    expect(result.status).to.be.equal(200);
-    expect(result.body).to.deep.equal(matches);
-  });
-
-  it('Testa se get /matches?inProgress=true retorna 200', async () => {
-    const mockFindOne = SequelizeMatches.build(matches as any);
-    sinon.stub(SequelizeMatches, 'findAll').resolves(mockFindOne as any);
+      
+      expect(result.status).to.be.equal(200);
+      expect(result.body).to.deep.equal(matches);
+    });
+    
+    it('Testa se get /matches?inProgress=true retorna 200', async () => {
+      const mockFindOne = SequelizeMatches.build(matches as any);
+      sinon.stub(SequelizeMatches, 'findAll').resolves(mockFindOne as any);
 
     const result = await chai.request(app)
       .get('/matches?inProgress=true')
 
-    expect(result.status).to.be.equal(200);
-    expect(result.body).to.deep.equal([matche]);
-  });
-
-  it('Testa se get /matches?inProgress=false retorna 200', async () => {
-    const mockFindOne = SequelizeMatches.build(matches as any);
-    sinon.stub(SequelizeMatches, 'findAll').resolves(mockFindOne as any);
-
-    const result = await chai.request(app)
+      expect(result.status).to.be.equal(200);
+      expect(result.body).to.deep.equal([matche]);
+    });
+    
+    it('Testa se get /matches?inProgress=false retorna 200', async () => {
+      const mockFindOne = SequelizeMatches.build(matches as any);
+      sinon.stub(SequelizeMatches, 'findAll').resolves(mockFindOne as any);
+      
+      const result = await chai.request(app)
       .get('/matches?inProgress=false')
-
-    expect(result.status).to.be.equal(200);
-    expect(result.body).to.deep.equal([matcheFinished]);
-  });
-
-
-  it('Testa se patch /matches/:id/finish retorna 200', async () => {
-    sinon.stub(SequelizeMatches, 'update').resolves([1] as any);
-
-    const result = await chai.request(app)
+      
+      expect(result.status).to.be.equal(200);
+      expect(result.body).to.deep.equal([matcheFinished]);
+    });
+    
+    
+    it('Testa se patch /matches/:id/finish retorna 200', async () => {
+      sinon.stub(SequelizeMatches, 'update').resolves([1] as any);
+      
+      const result = await chai.request(app)
       .patch('/matches/1/finish').set('Authorization', `Bearer ${token}`)
-
-    expect(result.status).to.be.equal(200);
-    expect(result.body).to.deep.equal({ message: 'Finished' });
-  });
-
-  it('Testa se patch /matches/:id retorna 200', async () => {
-    sinon.stub(SequelizeMatches, 'update').resolves([1] as any);
-
-    const result = await chai.request(app)
+      
+      expect(result.status).to.be.equal(200);
+      expect(result.body).to.deep.equal({ message: 'Finished' });
+    });
+    
+    it('Testa se patch /matches/:id retorna 200', async () => {
+      sinon.stub(SequelizeMatches, 'update').resolves([1] as any);
+      
+      const result = await chai.request(app)
       .patch('/matches/1')
       .send(matche).set('Authorization', `Bearer ${token}`)
-
-    expect(result.status).to.be.equal(200);
-    expect(result.body).to.deep.equal({ message: 'Updated' });
-  });
-
-  it('Testa se post /matches retorna 200', async () => {
-
-    const mockFindOne = SequelizeUsers.build(matche as any);
-    sinon.stub(SequelizeMatches, 'findOne').resolves(mockFindOne);
-
-    const result = await chai.request(app)
+      
+      expect(result.status).to.be.equal(200);
+      expect(result.body).to.deep.equal({ message: 'Updated' });
+    });
+    
+    it('Testa se post /matches retorna 200', async () => {
+      
+      const mockFindOne = SequelizeUsers.build(matche as any);
+      sinon.stub(SequelizeMatches, 'create').resolves(mockFindOne);
+      
+      const result = await chai.request(app)
       .post('/matches')
       .send(matcheCreated).set('Authorization', `Bearer ${token}`)
+      
+      expect(result.status).to.be.equal(201);
+      expect(result.body).to.deep.equal(mockFindOne.dataValues);
+    });
 
-    expect(result.status).to.be.equal(200);
-    expect(result.body).to.deep.equal(matcheCreated);
+    it('Testa se post /matches retorna 422', async () => {
+        
+        const result = await chai.request(app)
+        .post('/matches')
+        .send(errorEqualTeam).set('Authorization', `Bearer ${token}`)
+        
+        expect(result.status).to.be.equal(422);
+        expect(result.body).to.deep.equal({ message: 'It is not possible to create a match with two equal teams' });
+    })
+
+    it('Testa se post /matches retorna 404', async () => {
+          
+          const result = await chai.request(app)
+          .post('/matches')
+          .send(notFoundTeam).set('Authorization', `Bearer ${token}`)
+          
+          expect(result.status).to.be.equal(404);
+          expect(result.body).to.deep.equal({ message: 'There is no team with such id!' });
+    });
+    
+    afterEach(() => {
+      sinon.restore();
+    })
+
   });
-
-});
