@@ -10,3 +10,8 @@ export default interface ILeaderboard {
   efficiency: string;
   totalPoints: number;
 }
+
+export interface ILeaderBoardModel {
+  findAllHome(): Promise<ILeaderboard[]>;
+  findAllAway(): Promise<ILeaderboard[]>;
+}

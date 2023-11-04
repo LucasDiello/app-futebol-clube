@@ -7,7 +7,11 @@ const router = Router();
 
 router.get(
   '/home',
-  (_req : Request, res : Response) => leaderBoardController.findAll(_req, res),
+  (_req : Request, res : Response) => leaderBoardController.findAllHome(_req, res),
+);
+router.get(
+  '/away',
+  (_req : Request, res : Response) => leaderBoardController.findAllAway(_req, res),
 );
 
 export default router;
