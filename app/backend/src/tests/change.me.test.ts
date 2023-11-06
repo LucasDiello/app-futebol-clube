@@ -14,6 +14,7 @@ import { buildLoginUser, existingUserWithWrongPasswordBody, loginUser
   import { generateToken } from '../middleware/auth/jwtValidate';
   import SequelizeMatches from '../database/models/SequelizeMatches';
   import { errorEqualTeam, matche, matcheCreated, matcheFinished, matches, notFoundTeam} from './mocks/Matches.mock';
+import { leaderBoardMock, leaderBoardAwayMock } from './mocks/LeaderBoard.mock';
   
 
   chai.use(chaiHttp);
@@ -228,8 +229,24 @@ describe('Seu teste', () => {
           expect(result.body).to.deep.equal({ message: 'There is no team with such id!' });
     });
     
+    
+    it('Testa se get /leaderboard/home retorna 200', async () => {
+      const result = await chai.request(app)
+      .get('/leaderboard/home')
+      
+      expect(result.status).to.be.equal(200);
+      expect(result.body).to.deep.equal(leaderBoardMock);
+    })
+
+    it('Testa se get /leaderboard/away retorna 200', async () => {
+      const result = await chai.request(app)
+      .get('/leaderboard/away')
+      
+      expect(result.status).to.be.equal(200);
+      expect(result.body).to.deep.equal(leaderBoardAwayMock);
+    });
+    
     afterEach(() => {
       sinon.restore();
     })
-
-  });
+});
