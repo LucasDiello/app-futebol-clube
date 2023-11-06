@@ -14,4 +14,9 @@ export default class LeaderBoardService {
     const leaderBoard = await this.leaderBoardModel.findAllAway();
     return { status: 'successful', data: leaderBoard };
   }
+
+  async findAll() {
+    const leaderBoard = await this.leaderBoardModel.findAll();
+    return { status: 'successful', data: leaderBoard };
+  }
 }

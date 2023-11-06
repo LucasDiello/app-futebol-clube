@@ -14,4 +14,6 @@ router.get(
   (_req : Request, res : Response) => leaderBoardController.findAllAway(_req, res),
 );
 
+router.get('/', (_req : Request, res : Response) => leaderBoardController.findAll(_req, res));
+
 export default router;

@@ -21,4 +21,12 @@ export default class LeaderBoard implements ILeaderBoardModel {
 
     return leaderBoard as ILeaderboard[];
   }
+
+  async findAll() : Promise<ILeaderboard[]> {
+    const leaderBoard = await this.sequelize.query(queryObj.inAllTeams, {
+      type: QueryTypes.SELECT,
+    });
+
+    return leaderBoard as ILeaderboard[];
+  }
 }
